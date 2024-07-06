@@ -29,9 +29,9 @@ namespace EasyMySql.Net
         public object this[string s] => dataReader[s];
 
         public bool Read() => dataReader.Read();
-        public async Task<bool> ReadAsync() => await dataReader.ReadAsync();
+        public async Task<bool> ReadAsync(CancellationToken cancellationToken = default) => await dataReader.ReadAsync(cancellationToken);
         public bool NextResult() => dataReader.NextResult();
-        public async Task<bool> NextResultAsync() => await dataReader.NextResultAsync();
+        public async Task<bool> NextResultAsync(CancellationToken cancellationToken = default) => await dataReader.NextResultAsync(cancellationToken);
         public int GetValues(object[] values) => dataReader.GetValues(values);
         public string GetName(int ordinal) => dataReader.GetName(ordinal);
         public object GetValue(int ordinal) => dataReader.GetValue(ordinal);
