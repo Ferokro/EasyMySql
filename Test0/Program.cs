@@ -3,7 +3,7 @@ using static System.Math;
 using EasyMySql.Net;
 
 Console.WriteLine("Connecting...");
-var con = new DBConnection(@"Server=localhost,3306;Database=voicenet;User=root;", true);
+var con = new DBConnection(@"Server=localhost,3306;Database=test;User=root;", true);
 Console.WriteLine("Connected!");
 
 
