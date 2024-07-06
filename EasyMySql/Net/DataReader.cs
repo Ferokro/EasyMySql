@@ -51,7 +51,7 @@ namespace EasyMySql.Net
             return valuesAndNames;
         }
 
-        public string GetValuesJson() => JsonConvert.SerializeObject(GetNamesAndValues());
+        public string GetJson() => JsonConvert.SerializeObject(GetNamesAndValues());
 
         /// <summary>
         /// Try read values
@@ -72,7 +72,7 @@ namespace EasyMySql.Net
         /// <summary>
         /// Try read columns names and values
         /// </summary>
-        public bool TryRead(out Dictionary<string, object> namesAndValues)
+        public bool TryReadWithNames(out Dictionary<string, object> namesAndValues)
         {
             namesAndValues = null;
             var rVal = Read();
@@ -96,7 +96,7 @@ namespace EasyMySql.Net
         /// <summary>
         /// Foreach rows for action columns with index
         /// </summary>
-        public void ForEach(Action<int, object> task)
+        public void ForEachWithValues(Action<int, object[]> task)
         {
             for (int i = 0; TryRead(out object[] cols); i++)
                 task(i, cols);
@@ -105,9 +105,9 @@ namespace EasyMySql.Net
         /// <summary>
         /// Foreach rows for action columns and names with index
         /// </summary>
-        public void ForEach(Action<int, Dictionary<string, object>> task)
+        public void ForEachWithNames(Action<int, Dictionary<string, object>> task)
         {
-            for (int i = 0; TryRead(out Dictionary<string, object> cols); i++)
+            for (int i = 0; TryReadWithNames(out Dictionary<string, object> cols); i++)
                 task(i, cols);
         }
 
