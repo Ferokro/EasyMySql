@@ -90,6 +90,12 @@ namespace EasyMySql.Net
             return command;
         }
 
+        public DBConnection CreateQuery(string cmd, out MySqlCommand command, object[] parameters = null)
+        {
+            command = CreateQuery(cmd, parameters);
+            return this;
+        }
+
         /// <summary>
         /// Create query with parameters
         /// </summary>
@@ -99,11 +105,29 @@ namespace EasyMySql.Net
         }
 
         /// <summary>
+        /// Create query with parameters
+        /// </summary>
+        public DBConnection CreateQueryParams(string cmd, out MySqlCommand command, params object[] parameters)
+        {
+            command = CreateQuery(cmd, parameters);
+            return this;
+        }
+
+        /// <summary>
         /// Create query and execute with parameter array
         /// </summary>
-        public DataReader QueryAndExecute(string cmd, object[] parameters)
+        public DataReader QueryAndExecute(string cmd, object[] parameters = null)
         {
             return new DataReader(CreateQuery(cmd, parameters).ExecuteReader());
+        }
+
+        /// <summary>
+        /// Create query and execute with parameter array
+        /// </summary>
+        public DBConnection QueryAndExecute(string cmd, out DataReader reader, object[] parameters = null)
+        {
+            reader = new DataReader(CreateQuery(cmd, parameters).ExecuteReader());
+            return this;
         }
 
         /// <summary>
@@ -114,6 +138,19 @@ namespace EasyMySql.Net
             return new DataReader(CreateQuery(cmd, parameters).ExecuteReader());
         }
 
+        /// <summary>
+        /// Create query and execute with parameters
+        /// </summary>
+        public DBConnection QueryAndExecuteParams(string cmd, out DataReader reader, params object[] parameters)
+        {
+            reader = new DataReader(CreateQuery(cmd, parameters).ExecuteReader());
+            return this;
+        }
+
+        public DataReader this[string command, object[] parameters] => QueryAndExecute(command, parameters);
+        public DataReader this[string command] => QueryAndExecute(command);
+
+        public long GetRowCount(string tableName) => this[$"SELECT COUNT(*) FROM {tableName}"].GetInt32(0);
 
         public void Open() => connection.Open();
         public async Task OpenAsync(CancellationToken cancellationToken = default) => await connection.OpenAsync(cancellationToken);
