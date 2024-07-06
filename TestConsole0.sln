@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.35013.160
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestConsole0", "TestConsole0\TestConsole0.csproj", "{A7B593DA-A491-4816-BE04-B3BE77AD9C88}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyMySql", "EasyMySql\EasyMySql.csproj", "{CE7FAC88-613D-44AA-A78B-7358D5D675A8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test0", "Test0\Test0.csproj", "{C2E043BB-9DAB-4A75-9D5E-375E2E9643BD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +13,14 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A7B593DA-A491-4816-BE04-B3BE77AD9C88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A7B593DA-A491-4816-BE04-B3BE77AD9C88}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A7B593DA-A491-4816-BE04-B3BE77AD9C88}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A7B593DA-A491-4816-BE04-B3BE77AD9C88}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CE7FAC88-613D-44AA-A78B-7358D5D675A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CE7FAC88-613D-44AA-A78B-7358D5D675A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CE7FAC88-613D-44AA-A78B-7358D5D675A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CE7FAC88-613D-44AA-A78B-7358D5D675A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C2E043BB-9DAB-4A75-9D5E-375E2E9643BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2E043BB-9DAB-4A75-9D5E-375E2E9643BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C2E043BB-9DAB-4A75-9D5E-375E2E9643BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C2E043BB-9DAB-4A75-9D5E-375E2E9643BD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
