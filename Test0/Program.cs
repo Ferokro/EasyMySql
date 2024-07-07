@@ -1,10 +1,23 @@
 ﻿using EasyMySql.Net;
+using EasyMySql.Net.Attributes;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
+using System.Runtime.InteropServices;
+
+namespace Test0;
 
 public class Program
 {
     static void Main(string[] args)
     {
         Console.WriteLine("Connecting...");
+
+        var con = new DBConnection(@"Server=localhost,3306;Database=test;User=root;", true);
+        var rowCount = con.GetRowCount("users");
+        Console.WriteLine(rowCount);
+
 
         while (true)
         {
@@ -17,7 +30,7 @@ public class Program
             Console.WriteLine("Columns or Json (c, j) ?");
             var cType = Console.ReadLine();
 
-            using (var result = con.QueryAndExecuteParams("SELECT * FROM users WHERE userid=? OR username=?", id, name))
+            using (var result = con.QueryAndExecuteParams("SELECT * FROM users WHERE userid=? OR username=? OR 1=1", id, name))
             {
                 //Columns Type
                 if (cType.ToLower().StartsWith('c'))

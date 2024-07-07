@@ -150,7 +150,14 @@ namespace EasyMySql.Net
         public DataReader this[string command, object[] parameters] => QueryAndExecute(command, parameters);
         public DataReader this[string command] => QueryAndExecute(command);
 
-        public long GetRowCount(string tableName) => this[$"SELECT COUNT(*) FROM {tableName}"].GetInt32(0);
+        public long GetRowCount(string tableName)
+        {
+            using var r = this[$"SELECT COUNT(*) FROM {tableName}"];
+            if (r.Read())
+                return r.GetInt32(0);
+            else
+                return -1;
+        }
 
         public void Open() => connection.Open();
         public async Task OpenAsync(CancellationToken cancellationToken = default) => await connection.OpenAsync(cancellationToken);
