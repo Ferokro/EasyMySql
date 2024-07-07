@@ -7,7 +7,7 @@ EasyMySql aims to provide an easy, fast writable, and comfortable usage for MySq
 ### Connect to MySql
 ```csharp
 Console.WriteLine("Connecting...");
-var con = new DBConnection(@"Server=localhost,3306;Database=voicenet;User=root;", true);
+var con = new DBConnection(@"Server=localhost,3306;Database=test;User=root;", true);
 Console.WriteLine("Connected!");
 ```
 
