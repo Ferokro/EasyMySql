@@ -1,4 +1,5 @@
-﻿using MySqlConnector;
+﻿using Microsoft.VisualBasic;
+using MySqlConnector;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -6,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -13,62 +15,62 @@ namespace EasyMySql.Net
 {
     public class DataReader : IDisposable
     {
-        public MySqlDataReader dataReader;
+        public MySqlDataReader SqlDataReader;
 
         public DataReader(MySqlDataReader reader)
         {
-            dataReader = reader;
+            SqlDataReader = reader;
         }
 
-        public int Depth => dataReader.Depth;
-        public int FieldCount => dataReader.FieldCount;
-        public int VisibleFieldCount => dataReader.VisibleFieldCount;
-        public int accors => dataReader.RecordsAffected;
+        public int Depth => SqlDataReader.Depth;
+        public int FieldCount => SqlDataReader.FieldCount;
+        public int VisibleFieldCount => SqlDataReader.VisibleFieldCount;
+        public int RecordsAffected => SqlDataReader.RecordsAffected;
 
-        public bool HasRows => dataReader.HasRows;
-        public bool IsClosed => dataReader.IsClosed;
+        public bool HasRows => SqlDataReader.HasRows;
+        public bool IsClosed => SqlDataReader.IsClosed;
 
-        public object this[string s] => dataReader[s];
+        public object this[string s] => SqlDataReader[s];
 
-        public bool Read() => dataReader.Read();
-        public async Task<bool> ReadAsync(CancellationToken cancellationToken = default) => await dataReader.ReadAsync(cancellationToken);
-        public bool NextResult() => dataReader.NextResult();
-        public async Task<bool> NextResultAsync(CancellationToken cancellationToken = default) => await dataReader.NextResultAsync(cancellationToken);
-        public int GetValues(object[] values) => dataReader.GetValues(values);
-        public string GetName(int ordinal) => dataReader.GetName(ordinal);
-        public object GetValue(int ordinal) => dataReader.GetValue(ordinal);
+        public bool Read() => SqlDataReader.Read();
+        public async Task<bool> ReadAsync(CancellationToken cancellationToken = default) => await SqlDataReader.ReadAsync(cancellationToken);
+        public bool NextResult() => SqlDataReader.NextResult();
+        public async Task<bool> NextResultAsync(CancellationToken cancellationToken = default) => await SqlDataReader.NextResultAsync(cancellationToken);
+        public int GetValues(object[] values) => SqlDataReader.GetValues(values);
+        public string GetName(int ordinal) => SqlDataReader.GetName(ordinal);
+        public object GetValue(int ordinal) => SqlDataReader.GetValue(ordinal);
 
-        public short GetInt16(int ordinal) => dataReader.GetInt16(ordinal);
-        public int GetInt32(int ordinal) => dataReader.GetInt32(ordinal);
-        public long GetInt64(int ordinal) => dataReader.GetInt64(ordinal);
+        public short GetInt16(int ordinal) => SqlDataReader.GetInt16(ordinal);
+        public int GetInt32(int ordinal) => SqlDataReader.GetInt32(ordinal);
+        public long GetInt64(int ordinal) => SqlDataReader.GetInt64(ordinal);
 
-        public bool GetBoolean(int ordinal) => dataReader.GetBoolean(ordinal);
-        public byte GetByte(int ordinal) => dataReader.GetByte(ordinal);
-        public long GetBytes(int ordinal, long dataOffset, byte[]? buffer, int bufferOffset, int length) => dataReader.GetBytes(ordinal, dataOffset, buffer, bufferOffset, length);
-        public sbyte GetSByte(int ordinal) => dataReader.GetSByte(ordinal);
-        public Type GetFieldType(int ordinal) => dataReader.GetFieldType(ordinal);
-        public T GetFieldType<T>(int ordinal) => dataReader.GetFieldValue<T>(ordinal);
-        public int GetOrdinal(string name) => dataReader.GetOrdinal(name);
-        public decimal GetDecimal(int ordinal) => dataReader.GetDecimal(ordinal);
-        public MySqlDecimal GetMySqlDecimal(int ordinal) => dataReader.GetMySqlDecimal(ordinal);
-        public char GetChar(int ordinal) => dataReader.GetChar(ordinal);
-        public long GetChars(int ordinal, long dataOffset, char[]? buffer, int bufferOffset, int length) => dataReader.GetChars(ordinal, dataOffset, buffer, bufferOffset, length);
-        public double GetDouble(int ordinal) => dataReader.GetDouble(ordinal);
-        public DateTime GetDateTime(int ordinal) => dataReader.GetDateTime(ordinal);
-        public DateOnly GetDateOnly(int ordinal) => dataReader.GetDateOnly(ordinal);
-        public DateTimeOffset GetDateTimeOffset(int ordinal) => dataReader.GetDateTimeOffset(ordinal);
-        public string GetDataTypeName(int ordinal) => dataReader.GetDataTypeName(ordinal);
-        public MySqlDateTime GetMySqlDateTime(int ordinal) => dataReader.GetMySqlDateTime(ordinal);
-        public float GetFloat(int ordinal) => dataReader.GetFloat(ordinal);
-        public Guid GetGuid(int ordinal) => dataReader.GetGuid(ordinal);
-        public string GetString(int ordinal) => dataReader.GetString(ordinal);
-        public Stream GetStream(int ordinal) => dataReader.GetStream(ordinal);
-        public TextReader GetTextReader(int ordinal) => dataReader.GetTextReader(ordinal);
-        public MySqlGeometry GetMySqlGeometry(int ordinal) => dataReader.GetMySqlGeometry(ordinal);
-        public ReadOnlyCollection<DbColumn> GetColumnSchema() => dataReader.GetColumnSchema();
-        public async Task<ReadOnlyCollection<DbColumn>> GetColumnSchemaAsync(CancellationToken cancellationToken = default) => await dataReader.GetColumnSchemaAsync(cancellationToken);
-        public DataTable? GetSchemaTable() => dataReader.GetSchemaTable();
-        public async Task<DataTable?> GetSchemaTableAsync(CancellationToken cancellationToken = default) => await dataReader.GetSchemaTableAsync(cancellationToken);
+        public bool GetBoolean(int ordinal) => SqlDataReader.GetBoolean(ordinal);
+        public byte GetByte(int ordinal) => SqlDataReader.GetByte(ordinal);
+        public long GetBytes(int ordinal, long dataOffset, byte[]? buffer, int bufferOffset, int length) => SqlDataReader.GetBytes(ordinal, dataOffset, buffer, bufferOffset, length);
+        public sbyte GetSByte(int ordinal) => SqlDataReader.GetSByte(ordinal);
+        public Type GetFieldType(int ordinal) => SqlDataReader.GetFieldType(ordinal);
+        public T GetFieldType<T>(int ordinal) => SqlDataReader.GetFieldValue<T>(ordinal);
+        public int GetOrdinal(string name) => SqlDataReader.GetOrdinal(name);
+        public decimal GetDecimal(int ordinal) => SqlDataReader.GetDecimal(ordinal);
+        public MySqlDecimal GetMySqlDecimal(int ordinal) => SqlDataReader.GetMySqlDecimal(ordinal);
+        public char GetChar(int ordinal) => SqlDataReader.GetChar(ordinal);
+        public long GetChars(int ordinal, long dataOffset, char[]? buffer, int bufferOffset, int length) => SqlDataReader.GetChars(ordinal, dataOffset, buffer, bufferOffset, length);
+        public double GetDouble(int ordinal) => SqlDataReader.GetDouble(ordinal);
+        public DateTime GetDateTime(int ordinal) => SqlDataReader.GetDateTime(ordinal);
+        public DateOnly GetDateOnly(int ordinal) => SqlDataReader.GetDateOnly(ordinal);
+        public DateTimeOffset GetDateTimeOffset(int ordinal) => SqlDataReader.GetDateTimeOffset(ordinal);
+        public string GetDataTypeName(int ordinal) => SqlDataReader.GetDataTypeName(ordinal);
+        public MySqlDateTime GetMySqlDateTime(int ordinal) => SqlDataReader.GetMySqlDateTime(ordinal);
+        public float GetFloat(int ordinal) => SqlDataReader.GetFloat(ordinal);
+        public Guid GetGuid(int ordinal) => SqlDataReader.GetGuid(ordinal);
+        public string GetString(int ordinal) => SqlDataReader.GetString(ordinal);
+        public Stream GetStream(int ordinal) => SqlDataReader.GetStream(ordinal);
+        public TextReader GetTextReader(int ordinal) => SqlDataReader.GetTextReader(ordinal);
+        public MySqlGeometry GetMySqlGeometry(int ordinal) => SqlDataReader.GetMySqlGeometry(ordinal);
+        public ReadOnlyCollection<DbColumn> GetColumnSchema() => SqlDataReader.GetColumnSchema();
+        public async Task<ReadOnlyCollection<DbColumn>> GetColumnSchemaAsync(CancellationToken cancellationToken = default) => await SqlDataReader.GetColumnSchemaAsync(cancellationToken);
+        public DataTable? GetSchemaTable() => SqlDataReader.GetSchemaTable();
+        public async Task<DataTable?> GetSchemaTableAsync(CancellationToken cancellationToken = default) => await SqlDataReader.GetSchemaTableAsync(cancellationToken);
 
         /// <summary>
         /// Get columns names and values
@@ -139,6 +141,27 @@ namespace EasyMySql.Net
         }
 
         /// <summary>
+        /// Foreach rows for custom types with index
+        /// </summary>
+        public DataReader ForEachCustom<T>(Action<int, T> task)
+        {
+            return ForEachCustom(typeof(T), (i, o) => task(i, (T)o));
+        }
+
+        /// <summary>
+        /// Foreach rows for custom types with index
+        /// </summary>
+        public DataReader ForEachCustom(Type type, Action<int, object> task)
+        {
+            var infos = Utils.GetVariableInfosOfType(type);
+
+            for (int i = 0; Read(); i++)
+                task(i, GetObject(type, infos));
+
+            return this;
+        }
+
+        /// <summary>
         /// Foreach rows for action columns with index
         /// </summary>
         public DataReader ForEachWithValues(Action<int, object[]> task)
@@ -160,10 +183,98 @@ namespace EasyMySql.Net
             return this;
         }
 
+        /// <summary>
+        /// Get object for custom types
+        /// </summary>
+        public object GetObject(Type type)
+        {
+            return Utils.GetObjectOfDictionary(GetNamesAndValues(), type);
+        }
+
+        /// <summary>
+        /// Get object for custom types
+        /// </summary>
+        public object GetObject(Type type, Dictionary<string, (MemberTypes, object)> infos)
+        {
+            return Utils.GetObjectOfInfoAndValues(type, infos, GetNamesAndValues());
+        }
+
+        /// <summary>
+        /// Get object for custom types
+        /// </summary>
+        public T GetObject<T>()
+        {
+            return (T)GetObject(typeof(T));
+        }
+
+        /// <summary>
+        /// Get object for custom types
+        /// </summary>
+        public T GetObject<T>(Dictionary<string, (MemberTypes, object)> infos)
+        {
+            return (T)GetObject(typeof(T), infos);
+        }
+
+        /// <summary>
+        /// Read object for custom types
+        /// </summary>
+        public object ReadObject(Type type)
+        {
+            if (Read())
+                return GetObject(type);
+
+            return default;
+        }
+
+        /// <summary>
+        /// Read object for custom types
+        /// </summary>
+        public object ReadObject(Type type, Dictionary<string, (MemberTypes, object)> infos)
+        {
+            if (Read())
+                return GetObject(type, infos);
+
+            return default;
+        }
+
+        /// <summary>
+        /// Read object for custom types
+        /// </summary>
+        public T ReadObject<T>()
+        {
+            return (T)ReadObject(typeof(T));
+        }
+
+        /// <summary>
+        /// Read object for custom types
+        /// </summary>
+        public T ReadObject<T>(Dictionary<string, (MemberTypes, object)> infos)
+        {
+            return (T)ReadObject(typeof(T), infos);
+        }
+
+        ~DataReader()
+        {
+            SqlDataReader = null;
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Read object for custom types
+        /// </summary>
         public void Close()
         {
-            if (!dataReader.IsClosed)
-                dataReader.Close();
+            if (!SqlDataReader.IsClosed)
+                SqlDataReader.Close();
+        }
+
+        /// <summary>
+        /// Read object for custom types
+        /// </summary>
+        public void End()
+        {
+            if (!SqlDataReader.IsClosed)
+                SqlDataReader.Close();
         }
 
         public void Dispose()

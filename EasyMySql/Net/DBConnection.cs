@@ -1,8 +1,11 @@
-﻿using MySqlConnector;
+﻿using EasyMySql.Net.Attributes;
+using MySqlConnector;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
@@ -14,71 +17,73 @@ namespace EasyMySql.Net
 {
     public class DBConnection : IDisposable
     {
-        public MySqlConnection connection;
+        public MySqlConnection Connection;
+        public static BlockingCollection<(MySqlCommand, Task)> WaitingCommands = new BlockingCollection<(MySqlCommand, Task)>();
+        public bool CanExecuteCommand = true;
 
         public DBConnection(string conString, bool open = true)
         {
-            connection = new MySqlConnection(conString);
+            Connection = new MySqlConnection(conString);
             if(open)
-                connection.Open();
+                Open();
         }
 
         public string ConnectionString
         {
-            get => connection.ConnectionString;
-            set => connection.ConnectionString = value;
+            get => Connection.ConnectionString;
+            set => Connection.ConnectionString = value;
         }
-        public int ServerThread => connection.ServerThread;
-        public string ServerVersion => connection.ServerVersion;
-        public bool CanCreateBatch => connection.CanCreateBatch;
-        public string DataSource => connection.DataSource;
-        public string DataBase => connection.Database;
-        public ConnectionState State => connection.State;
+        public int ServerThread => Connection.ServerThread;
+        public string ServerVersion => Connection.ServerVersion;
+        public bool CanCreateBatch => Connection.CanCreateBatch;
+        public string DataSource => Connection.DataSource;
+        public string DataBase => Connection.Database;
+        public ConnectionState State => Connection.State;
         public ISite? Site
         {
-            get => connection.Site;
-            set => connection.Site = value;
+            get => Connection.Site;
+            set => Connection.Site = value;
         }
-        public int ConnectionTimeout => connection.ConnectionTimeout;
-        public IContainer? Container => connection.Container;
+        public int ConnectionTimeout => Connection.ConnectionTimeout;
+        public IContainer? Container => Connection.Container;
 
         //Events
         public Func<X509CertificateCollection, ValueTask>? ProvideClientCertificatesCallback
         {
-            get => connection.ProvideClientCertificatesCallback;
-            set => connection.ProvideClientCertificatesCallback = value;
+            get => Connection.ProvideClientCertificatesCallback;
+            set => Connection.ProvideClientCertificatesCallback = value;
         }
         public Func<MySqlProvidePasswordContext, string>? ProvidePasswordCallback
         {
-            get => connection.ProvidePasswordCallback;
-            set => connection.ProvidePasswordCallback = value;
+            get => Connection.ProvidePasswordCallback;
+            set => Connection.ProvidePasswordCallback = value;
         }
         public RemoteCertificateValidationCallback? RemoteCertificateValidationCallback
         {
-            get => connection.RemoteCertificateValidationCallback;
-            set => connection.RemoteCertificateValidationCallback = value;
+            get => Connection.RemoteCertificateValidationCallback;
+            set => Connection.RemoteCertificateValidationCallback = value;
         }
 
-        public bool Ping() => connection.Ping();
-        public async Task<bool> PingAsync(CancellationToken cancellationToken = default) => await connection.PingAsync(cancellationToken);
-        public DataTable GetSchema() => connection.GetSchema();
-        public async Task<DataTable> GetSchemaAsync(CancellationToken cancellationToken = default) => await connection.GetSchemaAsync(cancellationToken);
-        public MySqlTransaction BeginTransaction(IsolationLevel isolationLevel, bool isReadOnly) => connection.BeginTransaction(isolationLevel, isReadOnly);
-        public async Task<MySqlTransaction> BeginTransactionAsync(IsolationLevel isolationLevel, bool isReadOnly, CancellationToken cancellationToken = default) => await connection.BeginTransactionAsync(isolationLevel, isReadOnly, cancellationToken);
-        public MySqlBatch CreateBatch() => connection.CreateBatch();
-        public MySqlCommand CreateCommand() => connection.CreateCommand();
-        public async ValueTask ResetConnectionAsync(CancellationToken cancellationToken = default) => connection.ResetConnectionAsync(cancellationToken);
+        public bool Ping() => Connection.Ping();
+        public async Task<bool> PingAsync(CancellationToken cancellationToken = default) => await Connection.PingAsync(cancellationToken);
+        public DataTable GetSchema() => Connection.GetSchema();
+        public async Task<DataTable> GetSchemaAsync(CancellationToken cancellationToken = default) => await Connection.GetSchemaAsync(cancellationToken);
+        public MySqlTransaction BeginTransaction(IsolationLevel isolationLevel, bool isReadOnly) => Connection.BeginTransaction(isolationLevel, isReadOnly);
+        public async Task<MySqlTransaction> BeginTransactionAsync(IsolationLevel isolationLevel, bool isReadOnly, CancellationToken cancellationToken = default) => await Connection.BeginTransactionAsync(isolationLevel, isReadOnly, cancellationToken);
+        public MySqlBatch CreateBatch() => Connection.CreateBatch();
+        public MySqlCommand CreateCommand() => Connection.CreateCommand();
+        public async ValueTask ResetConnectionAsync(CancellationToken cancellationToken = default) => await Connection.ResetConnectionAsync(cancellationToken);
 
-        public void ChangeDatabase(string databaseName) => connection.ChangeDatabase(databaseName);
+        public void ChangeDatabase(string databaseName) => Connection.ChangeDatabase(databaseName);
         public async Task ChangeDatabaseAsync(string databaseName, CancellationToken cancellationToken = default) => 
-            await connection.ChangeDatabaseAsync(databaseName, cancellationToken);
+            await Connection.ChangeDatabaseAsync(databaseName, cancellationToken);
 
         /// <summary>
         /// Create query with parameter array
         /// </summary>
         public MySqlCommand CreateQuery(string cmd, object[] parameters = null)
         {
-            var command = new MySqlCommand(cmd, connection);
+            var command = new MySqlCommand(cmd, Connection);
             
             if (parameters != null && parameters.Length > 0)
             {
@@ -94,6 +99,30 @@ namespace EasyMySql.Net
         {
             command = CreateQuery(cmd, parameters);
             return this;
+        }
+
+        public async Task<int> ExecuteNonQuery(MySqlCommand command)
+        {
+            if (!CanExecuteCommand)
+            {
+                int val = 0;
+                var evnt = new Task(() =>
+                {
+                    val = command.ExecuteNonQuery();
+                });
+                WaitingCommands.Add((command, evnt));
+
+                await evnt;//Utils.Waiter(() => reader != null);
+
+                return val;
+            }
+            else
+            {
+                CanExecuteCommand = false;
+                int val = command.ExecuteNonQuery();
+                CanExecuteCommand = true;
+                return val;
+            }
         }
 
         /// <summary>
@@ -116,56 +145,89 @@ namespace EasyMySql.Net
         /// <summary>
         /// Create query and execute with parameter array
         /// </summary>
-        public DataReader QueryAndExecute(string cmd, object[] parameters = null)
+        public async Task<DataReader> QueryAndExecuteAsync(string cmd, object[] parameters = null)
         {
-            return new DataReader(CreateQuery(cmd, parameters).ExecuteReader());
+            var q = CreateQuery(cmd, parameters);
+            if (!CanExecuteCommand)
+            {
+                DataReader reader = null;
+                var evnt = new Task(() =>
+                {
+                    reader = new DataReader(q.ExecuteReader(), this);
+                });
+                WaitingCommands.Add((q, evnt));
+
+                await evnt;//Utils.Waiter(() => reader != null);
+
+                return reader;
+            }
+            else
+            {
+                CanExecuteCommand = false;
+                return new DataReader(q.ExecuteReader(), this);
+            }
         }
 
         /// <summary>
         /// Create query and execute with parameter array
         /// </summary>
-        public DBConnection QueryAndExecute(string cmd, out DataReader reader, object[] parameters = null)
+        public DataReader QueryAndExecute(string cmd, object[] parameters = null)
         {
-            reader = new DataReader(CreateQuery(cmd, parameters).ExecuteReader());
-            return this;
+            var rdr = QueryAndExecuteAsync(cmd, parameters);
+            rdr.Wait();
+            return rdr.Result;
         }
 
         /// <summary>
         /// Create query and execute with parameters
         /// </summary>
-        public DataReader QueryAndExecuteParams(string cmd, params object[] parameters)
+        public async Task<DataReader> QueryAndExecuteParamsAsync(string cmd, params object[] parameters)
         {
-            return new DataReader(CreateQuery(cmd, parameters).ExecuteReader());
+            return await QueryAndExecuteAsync(cmd, parameters);
         }
 
-        /// <summary>
-        /// Create query and execute with parameters
-        /// </summary>
-        public DBConnection QueryAndExecuteParams(string cmd, out DataReader reader, params object[] parameters)
-        {
-            reader = new DataReader(CreateQuery(cmd, parameters).ExecuteReader());
-            return this;
-        }
 
-        public DataReader this[string command, object[] parameters] => QueryAndExecute(command, parameters);
-        public DataReader this[string command] => QueryAndExecute(command);
+        public Task<DataReader> this[string command, object[] parameters] => QueryAndExecuteAsync(command, parameters);
+        public Task<DataReader> this[string command] => QueryAndExecuteAsync(command);
 
         public long GetRowCount(string tableName)
         {
-            using var r = this[$"SELECT COUNT(*) FROM {tableName}"];
-            if (r.Read())
-                return r.GetInt32(0);
+            using var r = (this[$"SELECT COUNT(*) FROM {tableName}"]);
+            r.Wait();
+
+            if (r.Result.Read())
+                return r.Result.GetInt32(0);
             else
                 return -1;
         }
 
-        public void Open() => connection.Open();
-        public async Task OpenAsync(CancellationToken cancellationToken = default) => await connection.OpenAsync(cancellationToken);
+        private async void Loop()
+        {
+            while(Connection.State != ConnectionState.Closed && Connection.State != ConnectionState.Broken)
+            {
+                if (CanExecuteCommand)
+                {
+                    if(WaitingCommands.TryTake(out var cnfg))
+                    {
+                        CanExecuteCommand = false;
+                        cnfg.Item2.Start();
+                    }
+                }
 
-        public void Close() => connection.Close();
-        public async Task CloseAsync() => await connection.CloseAsync();
+                await Task.Delay(1);
+            }
+        }
 
-        public void Dispose() => connection.Dispose();
-        public async ValueTask DisposeAsync() => await connection.DisposeAsync();
+        public void Open() { 
+            Connection.Open();
+            Loop();
+        }
+        public async Task OpenAsync(CancellationToken cancellationToken = default) => await Connection.OpenAsync(cancellationToken);
+
+        public void Close() => Connection.Close();
+        public async Task CloseAsync() => await Connection.CloseAsync();
+
+        public void Dispose() => Connection.Dispose();
+        public async ValueTask DisposeAsync() => await Connection.DisposeAsync();
     }
 }
